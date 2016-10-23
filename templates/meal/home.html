@@ -1,0 +1,157 @@
+{% extends "meal/base.html" %}
+{% load bootstrap3 %}
+{% block js %}
+    {{ parent }}
+
+    <script>
+
+
+
+
+
+function tick(obj)
+{
+    var today = new Date();
+    var date = new Date(obj.dataset.date);
+   // date.setHours(today.getHours(), today.getMinutes());
+    date.setHours(10, 00);
+console.log(today , date);
+
+
+  if (today>date)
+
+  {
+       obj.checked=!(obj.checked)
+alert('Date or time already passed.')
+
+
+
+  }
+  else{
+      if(obj.checked==true){
+        var id=obj.dataset.id;
+        var date=obj.dataset.date;
+        var formData=new FormData();
+        formData.append('eid', id);
+        formData.append('date',date);
+        formData.append('csrfmiddlewaretoken','{{ csrf_token }}');
+        var request = new XMLHttpRequest();
+        request.open("POST", "{% url 'add'%}");
+
+        request.onreadystatechange = function() {
+            if (request.readyState == 4 && request.status == 200) {
+                var count=request.responseText;
+                document.getElementById('ttotal').innerHTML=count;
+                obj.disabled=false;
+
+
+            }
+
+        };
+     obj.disabled=true;
+            request.send(formData);
+    }
+    else{
+       // console.log("unchecked")
+
+        var id=obj.dataset.id;
+        var date=obj.dataset.date;
+        var formData=new FormData();
+        formData.append('eid', id);
+        formData.append('date',date);
+        formData.append('csrfmiddlewaretoken','{{ csrf_token }}');
+        var request = new XMLHttpRequest();
+        request.open("POST", "{% url 'delete' %}");
+        request.onreadystatechange = function() {
+            if (request.readyState == 4 && request.status == 200) {
+                var count=request.responseText;
+                document.getElementById('ttotal').innerHTML=count;
+
+            }
+
+        };
+        request.send(formData);
+    }
+  }
+
+}
+    </script>
+{% endblock %}
+
+
+{% block content %}
+    <form>
+    <div class="well">Month:
+        <select name="month">
+        {% for m in month %}
+            {% if forloop.counter == current_month %}
+                <option value="{{ forloop.counter }}" selected>{{ m }}</option>
+
+            {% else %}
+                <option value="{{ forloop.counter }}">{{ m }}</option>
+            {% endif %}
+        {% endfor %}
+
+        </select>
+    <button type="submit"><span class="glyphicon glyphicon-circle-arrow-right"></span></button>
+    </div>
+     </form>
+    <div class="well">Today's total entries: <span id="ttotal" class="text-primary">{{ count }}</span></div>
+
+    <table class="table">
+
+
+     <tr>
+         <th>Name</th>
+        {% for d in date_list %}
+           <th>{{ d|date:'d' }}</th>
+        {% endfor %}
+
+    </tr>
+
+
+    {% for e in employees %}
+        <tr>
+            <td><a href="{% url 'multiadd' e.id %}">{{ e.name }}</a>
+            {% for key,value in monthly_entry_count.items %}
+                {% if key == e.id %}
+                    ({{ value }})
+                     <br/>
+            {% widthratio value 1 35 %}/= tk
+                {% endif %}
+            {% endfor %}
+
+
+            </td>
+
+                {% for d in date_list %}
+                    <td>
+                    {% if d in e.dates %}
+                       <input type="checkbox" value="1" checked onchange="tick(this)" data-id="{{ e.id }}" data-date="{{ d|date:'Y-m-d' }}">
+                    {% else %}
+                      <input type="checkbox" value="1" onchange="tick(this)" data-id="{{ e.id }}" data-date="{{ d|date:'Y-m-d' }}">
+                    {% endif %}
+                    </td>
+
+
+                {% endfor %}
+
+
+
+
+{#            <td><a href="{% url 'log' e.id %}" class="btn btn-primary btn-sm">Show log</a></td>#}
+
+</tr>
+    {% endfor %}
+
+    </table>
+
+{% endblock %}
+
+
+
+{#<td>{% for key,value in monthly_entry_count.items %}#}
+{#                {% if key == e.id %}#}
+{#                    {% widthratio value 1 35 %}#}
+{#                {% endif %}#}
+{#            {% endfor %}</td>#}

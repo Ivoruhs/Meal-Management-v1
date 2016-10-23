@@ -1,0 +1,10 @@
+{% extends "meal/base.html" %}
+{% block content %}
+    <form action="" method="POST">{% csrf_token %}
+    <table align="center">
+    <tr><td><font size="3">User name</font></td><td><input type="text" name="username"></td></tr>
+    <tr><td><font size="3">Password</font></td><td><input type="password" name="password"></td></tr>
+        <tr><td colspan="2"><center><button type="submit" class="btn btn-info">Sign in</button></center></td></tr>
+    </table>
+    </form>
+{% endblock %}

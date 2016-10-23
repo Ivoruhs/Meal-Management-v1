@@ -1,0 +1,97 @@
+{% extends "meal/base.html" %}
+{% load bootstrap3 %}
+
+
+
+
+{%  block content %}
+
+    <div align="center">
+<form action="" method="post">{% csrf_token %}
+    <label for="Date"><span class="glyphicon glyphicon-calendar"></span></label>
+
+    {{ form }}
+    <button type="submit" class="btn btn-primary btn-sm">
+    <span class="glyphicon glyphicon-ok-sign"></span>
+</button>
+</form>
+
+
+    </div><br/>
+    <div align="center">
+    <table class="table">
+
+
+        <tr><th>All entries</th></tr>
+
+    {% for l in log %}
+
+       <tr><td> {{ l.date}}</td>
+{#       <td><span value="Delete" data-id="{{ id }}" data-date="{{ l.date|date:'Y-m-d' }}" onclick="del(this)" class="glyphicon glyphicon-remove delbtnColor"></span></td>#}
+       <td><button class="btn btn-danger btn-sm "value="Delete" data-id="{{ id }}" data-date="{{ l.date|date:'Y-m-d' }}" onclick="del(this)"><span class="glyphicon glyphicon-remove "></span></button></td>
+       </tr>
+
+    {% endfor %}
+
+    </table>
+    </div>
+{%endblock%}
+
+
+
+{% load staticfiles %}
+{% block style %}<link rel="stylesheet" href= "{% static 'meal/css/jquery-ui.css' %}" />
+    <link rel="stylesheet" href="{%static 'meal/css/toastr.css'%}"/>
+    <style>
+    .delbtnColor{
+       background-color: red;
+    }
+
+    </style>
+{% endblock %}
+
+
+
+{% block js %}
+
+         <script src="{% static 'meal/js/jquery-ui.js' %}"></script>
+     <script src="{% static 'meal/js/toastr.js' %}"></script>
+
+        <script>
+            $(function() {
+                $( "#id_date" ).datepicker(({ dateFormat: "yy-mm-dd" }));
+            });
+        </script>
+
+
+
+
+     <script>
+    function del(obj){
+
+        var id=obj.dataset.id;
+        var date=obj.dataset.date;
+        var formData=new FormData();
+        formData.append('eid', id);
+        formData.append('date',date);
+        formData.append('csrfmiddlewaretoken','{{ csrf_token }}');
+        var request = new XMLHttpRequest();
+        request.open("POST", "{% url 'delete' %}");
+        request.onreadystatechange = function() {
+            if (request.readyState == 4 && request.status == 200) {
+                var count=request.responseText;
+{#                alert(count)#}
+                if(count !="Deleted"){toastr.error(count)}
+                else{toastr.success(count)}
+
+            }
+
+        };
+        request.send(formData);
+    }
+
+    </script>
+
+
+
+{% endblock %}
